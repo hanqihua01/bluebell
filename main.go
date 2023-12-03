@@ -4,7 +4,7 @@ import (
 	"bluebell/dao/mysql"
 	"bluebell/dao/redis"
 	"bluebell/logger"
-	"bluebell/routes"
+	"bluebell/router"
 	"bluebell/settings"
 	"context"
 	"fmt"
@@ -56,7 +56,7 @@ func main() {
 	zap.L().Debug("init redis succeed...")
 
 	// 5. 注册路由
-	r := routes.Setup(settings.Conf.Mode)
+	r := router.Setup(settings.Conf.Mode)
 
 	// 6. 启动服务（优雅关机）
 	// 配置服务器信息
