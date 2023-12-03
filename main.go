@@ -7,6 +7,7 @@ import (
 	"bluebell/router"
 	"bluebell/settings"
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -20,7 +21,10 @@ import (
 
 func main() {
 	// 1. 加载配置
-	if err := settings.Init(); err != nil {
+	var confFile string
+	flag.StringVar(&confFile, "c", "./conf/config.yaml", "config file path")
+	flag.Parse() // 通过命令行参数执行配置文件
+	if err := settings.Init(confFile); err != nil {
 		fmt.Printf("init settings failed, err: %v\n", err)
 		return
 	}
