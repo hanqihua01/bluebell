@@ -1,8 +1,8 @@
 package router
 
 import (
-	"bluebell/logger"
-	"bluebell/settings"
+	"bluebell/controller"
+	"bluebell/util/logger"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -16,8 +16,13 @@ func Setup(mode string) *gin.Engine {
 	r := gin.New() // 不使用gin.Default()，因为要使用自定义的logger和recovery中间件
 	r.Use(logger.GinLogger(), logger.GinRecovery(true))
 
-	r.GET("/version", func(c *gin.Context) {
-		c.String(http.StatusOK, settings.Conf.Version)
+	// 注册业务路由
+	r.POST("/signup", controller.SignUpHandler)
+
+	r.NoRoute(func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": "404",
+		})
 	})
 
 	return r

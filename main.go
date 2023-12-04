@@ -3,10 +3,10 @@ package main
 import (
 	"bluebell/dao/mysql"
 	"bluebell/dao/redis"
-	"bluebell/logger"
-	"bluebell/pkg/snowflake"
 	"bluebell/router"
-	"bluebell/settings"
+	"bluebell/util/logger"
+	"bluebell/util/settings"
+	"bluebell/util/snowflake"
 	"context"
 	"flag"
 	"fmt"
@@ -23,7 +23,7 @@ import (
 func main() {
 	// 加载配置
 	var confFile string
-	flag.StringVar(&confFile, "c", "./conf/config.yaml", "config file path")
+	flag.StringVar(&confFile, "c", "./config.yaml", "config file path")
 	flag.Parse() // 通过命令行参数执行配置文件
 	if err := settings.Init(confFile); err != nil {
 		fmt.Printf("init settings failed, err: %v\n", err)

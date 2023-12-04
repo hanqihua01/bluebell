@@ -1,7 +1,7 @@
 package mysql
 
 import (
-	"bluebell/settings"
+	"bluebell/util/settings"
 	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"

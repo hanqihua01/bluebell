@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"bluebell/settings"
+	"bluebell/util/settings"
 	"fmt"
 	"net"
 	"net/http"
