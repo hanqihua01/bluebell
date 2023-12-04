@@ -21,7 +21,12 @@ func SignUpHandler(c *gin.Context) {
 	}
 
 	// 业务处理
-	logic.SignUp(&p)
+	if err := logic.SignUp(&p); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": "sign up fail",
+		})
+		return
+	}
 
 	// 返回响应
 	c.JSON(http.StatusOK, gin.H{
