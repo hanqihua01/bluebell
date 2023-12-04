@@ -10,7 +10,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -20,6 +19,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// gin + sqlx + go-redis + viper + zap + snowflake
 func main() {
 	// 加载配置
 	var confFile string
@@ -67,19 +67,19 @@ func main() {
 	}
 	// 启动goroutine运行服务器
 	go func() {
+		zap.L().Info("server launching")
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("listen: %s\n", err)
+			zap.L().Fatal("server listen and serve", zap.Error(err))
 		}
 	}()
 	// 等待中断信号来优雅关闭服务器，为关闭服务器设置一个5秒的超时
 	quit := make(chan os.Signal, 1)                      // 设置channel来存放中断信号
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM) // 设置如果有信号，则放到quit通道里
 	<-quit                                               // 没有信号前一直阻塞，收到信号后停止阻塞
-	zap.L().Info("shutdown server...")
+	zap.L().Info("server shutdowning")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second) // 创建一个5秒超时的context
 	defer cancel()                                                          // 执行完毕或者超时后释放上下文资源
 	if err := srv.Shutdown(ctx); err != nil {                               // 在上下文超时时限内进行Shutdown()操作
 		zap.L().Fatal("server shutdown", zap.Error(err))
 	}
-	zap.L().Info("server exiting")
 }

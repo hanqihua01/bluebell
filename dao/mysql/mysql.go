@@ -6,7 +6,6 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	"go.uber.org/zap"
 )
 
 var db *sqlx.DB
@@ -22,7 +21,6 @@ func Init(cfg *settings.MySQLConfig) (err error) {
 	db, err = sqlx.Connect("mysql", dsn)
 	if err != nil {
 		fmt.Printf("sqlx.Connect() failed, err: %v\n", err)
-		zap.L().Error("sqlx.Connect() failed", zap.Error(err))
 		return
 	}
 	db.SetMaxOpenConns(cfg.MaxOpenConns)
