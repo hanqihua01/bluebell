@@ -20,7 +20,7 @@ import (
 )
 
 func main() {
-	// 1. 加载配置
+	// 加载配置
 	var confFile string
 	flag.StringVar(&confFile, "c", "./conf/config.yaml", "config file path")
 	flag.Parse() // 通过命令行参数执行配置文件
@@ -28,41 +28,31 @@ func main() {
 		fmt.Printf("init settings failed, err: %v\n", err)
 		return
 	}
-	fmt.Println("init settings succeed...")
 
-	// 2. 初始化日志
+	// 初始化日志
 	if err := logger.Init(settings.Conf.LogConfig); err != nil {
 		fmt.Printf("init logger failed, err: %v\n", err)
 		return
 	}
 	defer zap.L().Sync() // 确保所有日志写入日志文件中
-	fmt.Println("init logger succeed...")
-	zap.L().Debug("init logger succeed...") // 从此开始，logger就可用，在合适的位置就可以记录日志而不是打印到控制台
 
-	// 3. 初始化MySQL连接
+	// 初始化MySQL连接
 	if err := mysql.Init(settings.Conf.MySQLConfig); err != nil {
 		fmt.Printf("init mysql failed, err:%v\n", err)
-		zap.L().Error("init mysql failed", zap.Error(err))
 		return
 	}
 	defer mysql.Close()
-	fmt.Println("init mysql succeed...")
-	zap.L().Debug("init mysql succeed...")
 
-	// 4. 初始化Redis连接
+	// 初始化Redis连接
 	if err := redis.Init(settings.Conf.RedisConfig); err != nil {
 		fmt.Printf("init redis failed, err:%v\n", err)
-		zap.L().Error("init redis failed", zap.Error(err))
 		return
 	}
 	defer redis.Close()
-	fmt.Println("init redis succeed...")
-	zap.L().Debug("init redis succeed...")
-
-	// 5. 注册路由
+	// 注册路由
 	r := router.Setup(settings.Conf.Mode)
 
-	// 6. 启动服务（优雅关机）
+	// 启动服务（优雅关机）
 	// 配置服务器信息
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", settings.Conf.Port),
