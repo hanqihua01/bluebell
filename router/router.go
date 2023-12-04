@@ -21,7 +21,7 @@ func Setup(mode string) *gin.Engine {
 
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"msg": "no route",
+			"msg": "no such route",
 		})
 	})
 
