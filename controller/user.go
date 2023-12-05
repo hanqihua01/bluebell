@@ -10,17 +10,18 @@ import (
 	"go.uber.org/zap"
 )
 
+// 用户注册
 func SignUpHandler(c *gin.Context) {
 	// 获取参数并校验
 	var p models.ParamSignUp
 	if err := c.ShouldBindJSON(&p); err != nil {
-		zap.L().Error("sign up with invalid params", zap.Error(err))
+		zap.L().Error("sign up with invalid parameters", zap.Error(err))
 		ResponseErrorWithMsg(c, CodeInvalidParam, err.Error())
 		return
 	}
 	// 业务处理
 	if err := logic.SignUp(&p); err != nil {
-		zap.L().Error("sign up fail", zap.Error(err))
+		zap.L().Error("signing up failed", zap.Error(err))
 		if errors.Is(err, mysql.ErrorUserExist) {
 			ResponseError(c, CodeUserExist)
 			return
@@ -32,6 +33,7 @@ func SignUpHandler(c *gin.Context) {
 	ResponseSuccess(c, nil)
 }
 
+// 用户登录
 func LoginHandler(c *gin.Context) {
 	// 获取参数并校验
 	var p models.ParamLogin
@@ -42,7 +44,7 @@ func LoginHandler(c *gin.Context) {
 	}
 	// 业务处理
 	if err := logic.Login(&p); err != nil {
-		zap.L().Error("log in fail", zap.Error(err))
+		zap.L().Error("logging in failed", zap.Error(err))
 		if errors.Is(err, mysql.ErrorUserNotExist) {
 			ResponseError(c, CodeUserNotExist)
 			return
@@ -55,5 +57,5 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 	// 返回响应
-	ResponseSuccess(c, "log in success")
+	ResponseSuccess(c, nil)
 }

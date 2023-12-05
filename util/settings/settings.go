@@ -49,24 +49,23 @@ type RedisConfig struct {
 }
 
 func Init(confFile string) (err error) {
-	viper.SetConfigFile(confFile) // 指定配置文件
-	err = viper.ReadInConfig()    // 读取配置文件
-	if err != nil {               // 读取配置文件失败
-		fmt.Printf("viper.ReadInConfig() failed, err: %v\n", err)
+	// 指定配置文件
+	viper.SetConfigFile(confFile)
+	// 读取配置文件
+	if err = viper.ReadInConfig(); err != nil {
 		return
 	}
-
 	// 反序列化配置信息到Conf中
 	if err = viper.Unmarshal(Conf); err != nil {
-		fmt.Printf("viper.Unmarshal() failed, err: %v\n", err)
+		return
 	}
-
 	// 监视配置文件变化并做出处理（回调函数）
 	viper.WatchConfig()
 	viper.OnConfigChange(func(in fsnotify.Event) {
-		fmt.Println("config file changed")
+		fmt.Println("config file has changed")
 		if err = viper.Unmarshal(Conf); err != nil {
-			fmt.Printf("viper.Unmarshal() failed, err: %v\n", err)
+			fmt.Println("unmarshalling of changed config file failed")
+			return
 		}
 	})
 

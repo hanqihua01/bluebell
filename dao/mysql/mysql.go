@@ -20,7 +20,6 @@ func Init(cfg *settings.MySQLConfig) (err error) {
 	)
 	db, err = sqlx.Connect("mysql", dsn)
 	if err != nil {
-		fmt.Printf("sqlx.Connect() failed, err: %v\n", err)
 		return
 	}
 	db.SetMaxOpenConns(cfg.MaxOpenConns)

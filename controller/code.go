@@ -13,11 +13,11 @@ const (
 
 var codeMsgMap = map[ResCode]string{
 	CodeSuccess:         "success",
-	CodeInvalidParam:    "invalid param",
-	CodeUserExist:       "user exist",
-	CodeUserNotExist:    "user not exist",
+	CodeInvalidParam:    "invalid parameter",
+	CodeUserExist:       "user already exists",
+	CodeUserNotExist:    "user not exists",
 	CodeInvalidPassword: "invalid password",
-	CodeServerBusy:      "server busy",
+	CodeServerBusy:      "server is busy",
 }
 
 func (c ResCode) Msg() string {

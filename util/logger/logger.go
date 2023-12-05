@@ -2,7 +2,6 @@ package logger
 
 import (
 	"bluebell/util/settings"
-	"fmt"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -27,24 +26,25 @@ func Init(cfg *settings.LogConfig, mode string) (err error) {
 	)
 	// 规定log文件如何编码
 	encoder := getEncoder()
-	// 规定log级别
+	// 规定log级别，高于该级别的log将被输出
 	var l = new(zapcore.Level)
 	if err = l.UnmarshalText([]byte(cfg.Level)); err != nil {
-		fmt.Printf("l.UnmarshalText() failed, err: %v\n", err)
 		return
 	}
-
+	// 生成zap核心
 	var core zapcore.Core
 	if mode == "debug" {
-		// 调试模式，日志输出到终端
+		// 调试模式，日志输出到日志文件和终端
 		consoleEncoder := zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())
 		core = zapcore.NewTee( // 可以同时使用以下两种模式的core
 			zapcore.NewCore(encoder, writeSyncer, l),
 			zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), zapcore.DebugLevel),
 		)
 	} else {
+		// 发布模式，日志仅输出到日志文件
 		core = zapcore.NewCore(encoder, writeSyncer, l)
 	}
+	// 创建自定义logger
 	lg := zap.New(core, zap.AddCaller())
 	zap.ReplaceGlobals(lg) // 用自定义logger替换zap库中全局的logger
 
@@ -52,6 +52,7 @@ func Init(cfg *settings.LogConfig, mode string) (err error) {
 }
 
 func getLogWriter(filename string, maxSize, maxBackup, maxAge int) zapcore.WriteSyncer {
+	// 使用lumberjack实现日志切割
 	lumberJackLogger := &lumberjack.Logger{
 		Filename:   filename,
 		MaxSize:    maxSize,
@@ -78,9 +79,9 @@ func GinLogger() gin.HandlerFunc {
 		start := time.Now()
 		path := c.Request.URL.Path
 		query := c.Request.URL.RawQuery
-		c.Next() // 进入下一个中间件
+		c.Next()
 		cost := time.Since(start)
-		// zap.L()得到全局logger，然后输出Info log
+		// 输出请求相关信息日志
 		zap.L().Info(path,
 			zap.Int("status", c.Writer.Status()),
 			zap.String("method", c.Request.Method),
@@ -113,7 +114,8 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 
 				httpRequest, _ := httputil.DumpRequest(c.Request, false)
 				if brokenPipe {
-					zap.L().Error(c.Request.URL.Path,
+					zap.L().Error(
+						c.Request.URL.Path,
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),
 					)
@@ -124,13 +126,15 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 				}
 
 				if stack {
-					zap.L().Error("[Recovery from panic]",
+					zap.L().Error(
+						"[Recovery from panic]",
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),
 						zap.String("stack", string(debug.Stack())),
 					)
 				} else {
-					zap.L().Error("[Recovery from panic]",
+					zap.L().Error(
+						"[Recovery from panic]",
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),
 					)
@@ -138,6 +142,6 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 				c.AbortWithStatus(http.StatusInternalServerError)
 			}
 		}()
-		c.Next() // 进入下一个中间件
+		c.Next()
 	}
 }
