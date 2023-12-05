@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func Init(cfg *settings.LogConfig) (err error) {
+func Init(cfg *settings.LogConfig, mode string) (err error) {
 	// 规定log文件写在哪里
 	writeSyncer := getLogWriter(
 		cfg.Filename,
@@ -34,7 +34,17 @@ func Init(cfg *settings.LogConfig) (err error) {
 		return
 	}
 
-	core := zapcore.NewCore(encoder, writeSyncer, l)
+	var core zapcore.Core
+	if mode == "debug" {
+		// 调试模式，日志输出到终端
+		consoleEncoder := zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())
+		core = zapcore.NewTee( // 可以同时使用以下两种模式的core
+			zapcore.NewCore(encoder, writeSyncer, l),
+			zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), zapcore.DebugLevel),
+		)
+	} else {
+		core = zapcore.NewCore(encoder, writeSyncer, l)
+	}
 	lg := zap.New(core, zap.AddCaller())
 	zap.ReplaceGlobals(lg) // 用自定义logger替换zap库中全局的logger
 
