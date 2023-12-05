@@ -55,5 +55,5 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 	// 返回响应
-	ResponseSuccess(c, CodeSuccess)
+	ResponseSuccess(c, "log in success")
 }
