@@ -20,6 +20,16 @@ func Setup(mode string) *gin.Engine {
 	r.POST("/signup", controller.SignUpHandler)
 	r.POST("/login", controller.LoginHandler)
 
+	r.GET("/ping", controller.JWTAuthMiddleware(), func(c *gin.Context) {
+		isLogin := true
+		c.Request.Header.Get("Authorization")
+		if isLogin {
+			c.String(http.StatusOK, "pong")
+		} else {
+			c.String(http.StatusOK, "please log in")
+		}
+	})
+
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"msg": "no such route",

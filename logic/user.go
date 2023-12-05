@@ -3,6 +3,7 @@ package logic
 import (
 	"bluebell/dao/mysql"
 	"bluebell/models"
+	"bluebell/util/jwt"
 	"bluebell/util/snowflake"
 )
 
@@ -23,10 +24,15 @@ func SignUp(p *models.ParamSignUp) (err error) {
 	return mysql.InsertUser(&user)
 }
 
-func Login(p *models.ParamLogin) (err error) {
+func Login(p *models.ParamLogin) (toekn string, err error) {
 	user := &models.User{
 		UserName: p.Username,
 		Password: p.Password,
 	}
-	return mysql.Login(user)
+	// 传递user指针，查询成功会user.ID将会有值
+	if err := mysql.Login(user); err != nil {
+		return "", err
+	}
+	// 生成JWT
+	return jwt.GenToken(user.UserID, p.Username)
 }

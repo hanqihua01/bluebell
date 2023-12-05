@@ -20,13 +20,14 @@ import (
 )
 
 // gin: Web框架
-// sqlx: MySQL连接
-// go-redis: Redis连接
 // viper: 配置文件读取
 // zap: 日志生成
 // lumberjack: 日志切割
+// sqlx: MySQL连接
+// go-redis: Redis连接
 // snowflake: 分布式ID生成
 // validator: 请求参数校验
+// jwt-go: JWT用户认证
 func main() {
 	// 加载配置
 	var confFile string
