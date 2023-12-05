@@ -20,6 +20,14 @@ func ResponseError(c *gin.Context, code ResCode) {
 	})
 }
 
+func ResponseErrorWithMsg(c *gin.Context, code ResCode, msg interface{}) {
+	c.JSON(http.StatusOK, &ResponseData{
+		Code: code,
+		Msg:  msg,
+		Data: nil,
+	})
+}
+
 func ResponseSuccess(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, &ResponseData{
 		Code: CodeSuccess,

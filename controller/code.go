@@ -6,7 +6,7 @@ const (
 	CodeSuccess ResCode = 1000 + iota
 	CodeInvalidParam
 	CodeUserExist
-	COdeUserNotExist
+	CodeUserNotExist
 	CodeInvalidPassword
 	CodeServerBusy
 )
@@ -15,7 +15,7 @@ var codeMsgMap = map[ResCode]string{
 	CodeSuccess:         "success",
 	CodeInvalidParam:    "invalid param",
 	CodeUserExist:       "user exist",
-	COdeUserNotExist:    "user not exist",
+	CodeUserNotExist:    "user not exist",
 	CodeInvalidPassword: "invalid password",
 	CodeServerBusy:      "server busy",
 }

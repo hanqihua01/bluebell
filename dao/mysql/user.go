@@ -8,6 +8,12 @@ import (
 	"errors"
 )
 
+var (
+	ErrorUserExist       = errors.New("user already exists")
+	ErrorUserNotExist    = errors.New("user not exists")
+	ErrorInvalidPassword = errors.New("password wrong")
+)
+
 // CheckUserExist 检查指定用户名的用户是否存在
 func CheckUserExist(username string) (err error) {
 	sqlStr := "select count(user_id) from user where username = ?"
@@ -16,7 +22,7 @@ func CheckUserExist(username string) (err error) {
 		return err
 	}
 	if count > 0 {
-		return errors.New("user already exists")
+		return ErrorUserExist
 	}
 	return nil
 }
@@ -45,14 +51,14 @@ func Login(user *models.User) (err error) {
 	sqlStr := "select user_id, username, password from user where username = ?"
 	err = db.Get(user, sqlStr, user.UserName)
 	if err == sql.ErrNoRows { // 用户不存在
-		return errors.New("user not exists")
+		return ErrorUserNotExist
 	}
 	if err != nil { // 查询数据库错误
 		return err
 	}
 	password := encryptPassword(oPassword)
 	if password != user.Password {
-		return errors.New("password wrong")
+		return ErrorInvalidPassword
 	}
 	return nil
 }
