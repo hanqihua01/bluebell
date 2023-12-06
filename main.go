@@ -28,6 +28,7 @@ import (
 // snowflake: 分布式ID生成
 // validator: 请求参数校验
 // jwt-go: JWT用户认证
+// Air: 文件热重载
 func main() {
 	// 加载配置
 	var confFile string
