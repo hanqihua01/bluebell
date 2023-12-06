@@ -22,7 +22,6 @@ func Setup(mode string) *gin.Engine {
 
 	r.GET("/ping", controller.JWTAuthMiddleware(), func(c *gin.Context) {
 		isLogin := true
-		c.Request.Header.Get("Authorization")
 		if isLogin {
 			c.String(http.StatusOK, "pong")
 		} else {
