@@ -16,6 +16,20 @@ var (
 	ErrVoteTimeExpire = errors.New("voting period has expired")
 )
 
+func CreatePost(postID int64) error {
+	pipeline := rdb.TxPipeline()
+	pipeline.ZAdd(getRedisKey(KeyPostTimeZSet), redis.Z{
+		Score:  float64(time.Now().Unix()),
+		Member: postID,
+	})
+	pipeline.ZAdd(getRedisKey(KeyPostScoreZSet), redis.Z{
+		Score:  float64(time.Now().Unix()), // 初试分数就是当前时间
+		Member: postID,
+	})
+	_, err := pipeline.Exec()
+	return err
+}
+
 func VoteForPost(userID, postID string, value float64) error {
 	// 判断投票限制
 	postTime := rdb.ZScore(getRedisKey(KeyPostTimeZSet), postID).Val() // 获取帖子发布时间
@@ -26,18 +40,18 @@ func VoteForPost(userID, postID string, value float64) error {
 	// 先查之前的投票记录
 	ov := rdb.ZScore(getRedisKey(KeyPostVotedZSetPrefix+postID), userID).Val()
 	diff := value - ov // 计算两次投票的差值
-	_, err := rdb.ZIncrBy(getRedisKey(KeyPostScoreZSet), diff*scorePerVote, postID).Result()
-	if err != nil {
-		return err
-	}
+
+	pipeline := rdb.TxPipeline()
+	pipeline.ZIncrBy(getRedisKey(KeyPostScoreZSet), diff*scorePerVote, postID)
 	// 记录用户
 	if value == 0 {
-		_, err = rdb.ZRem(getRedisKey(KeyPostVotedZSetPrefix+postID), userID).Result()
+		pipeline.ZRem(getRedisKey(KeyPostVotedZSetPrefix+postID), userID)
 	} else {
-		_, err = rdb.ZAdd(getRedisKey(KeyPostVotedZSetPrefix+postID), redis.Z{
+		pipeline.ZAdd(getRedisKey(KeyPostVotedZSetPrefix+postID), redis.Z{
 			Score:  value,
 			Member: userID,
-		}).Result()
+		})
 	}
+	_, err := pipeline.Exec()
 	return err
 }
