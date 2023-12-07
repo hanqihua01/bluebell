@@ -2,6 +2,7 @@ package redis
 
 import (
 	"errors"
+	"strconv"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -16,16 +17,21 @@ var (
 	ErrVoteTimeExpire = errors.New("voting period has expired")
 )
 
-func CreatePost(postID int64) error {
+func CreatePost(postID, communityID int64) error {
 	pipeline := rdb.TxPipeline()
+	// 帖子时间
 	pipeline.ZAdd(getRedisKey(KeyPostTimeZSet), redis.Z{
 		Score:  float64(time.Now().Unix()),
 		Member: postID,
 	})
+	// 帖子分数
 	pipeline.ZAdd(getRedisKey(KeyPostScoreZSet), redis.Z{
 		Score:  float64(time.Now().Unix()), // 初试分数就是当前时间
 		Member: postID,
 	})
+	// 把帖子id加到社区的set
+	ckey := getRedisKey(KeyCommunitySetPrefix + strconv.Itoa(int(communityID)))
+	pipeline.SAdd(ckey, postID)
 	_, err := pipeline.Exec()
 	return err
 }
