@@ -49,3 +49,26 @@ func GetPostDetailHandler(c *gin.Context) {
 	// 返回相应
 	ResponseSuccess(c, data)
 }
+
+func GetPostListHandler(c *gin.Context) {
+	// 获取分页参数
+	pageNumStr := c.Query("pageNum")
+	pageSizeStr := c.Query("pageSize")
+	pageNum, err := strconv.ParseInt(pageNumStr, 10, 64)
+	if err != nil {
+		pageNum = 1
+	}
+	pageSize, err := strconv.ParseInt(pageSizeStr, 10, 64)
+	if err != nil {
+		pageSize = 1
+	}
+	// 获取数据
+	data, err := logic.GetPostList(pageNum, pageSize)
+	if err != nil {
+		zap.L().Error("post list getting failed", zap.Error(err))
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+	// 返回响应
+	ResponseSuccess(c, data)
+}
