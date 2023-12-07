@@ -1,0 +1,43 @@
+package redis
+
+import (
+	"errors"
+	"time"
+
+	"github.com/go-redis/redis"
+)
+
+const (
+	oneWeekInSeconds = 7 * 24 * 3600
+	scorePerVote     = 432
+)
+
+var (
+	ErrVoteTimeExpire = errors.New("voting period has expired")
+)
+
+func VoteForPost(userID, postID string, value float64) error {
+	// 判断投票限制
+	postTime := rdb.ZScore(getRedisKey(KeyPostTimeZSet), postID).Val() // 获取帖子发布时间
+	if float64(time.Now().Unix()-int64(postTime)) > oneWeekInSeconds {
+		return ErrVoteTimeExpire
+	}
+	// 更新帖子分数
+	// 先查之前的投票记录
+	ov := rdb.ZScore(getRedisKey(KeyPostVotedZSetPrefix+postID), userID).Val()
+	diff := value - ov // 计算两次投票的差值
+	_, err := rdb.ZIncrBy(getRedisKey(KeyPostScoreZSet), diff*scorePerVote, postID).Result()
+	if err != nil {
+		return err
+	}
+	// 记录用户
+	if value == 0 {
+		_, err = rdb.ZRem(getRedisKey(KeyPostVotedZSetPrefix+postID), userID).Result()
+	} else {
+		_, err = rdb.ZAdd(getRedisKey(KeyPostVotedZSetPrefix+postID), redis.Z{
+			Score:  value,
+			Member: userID,
+		}).Result()
+	}
+	return err
+}
