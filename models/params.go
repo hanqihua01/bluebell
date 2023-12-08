@@ -18,16 +18,10 @@ type ParamVoteData struct {
 }
 
 type ParamPostList struct {
-	Page  int64  `json:"page" form:"page"` // form: url ?key=val 参数的解析
-	Size  int64  `json:"size" form:"size"`
-	Order string `json:"order" form:"order"`
-}
-
-type ParamCommunityPostList struct {
-	Page        int64  `json:"page" form:"page"`
+	Page        int64  `json:"page" form:"page"` // form: url ?key=val 参数的解析
 	Size        int64  `json:"size" form:"size"`
 	Order       string `json:"order" form:"order"`
-	CommunityID int64  `json:"community_id" form:"community_id"`
+	CommunityID int64  `json:"community_id" form:"community_id"` // 可以为空
 }
 
 const (

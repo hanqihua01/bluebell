@@ -50,7 +50,7 @@ func getIDsFromKey(key string, page, size int64) ([]string, error) {
 	return rdb.ZRevRange(key, start, end).Result()
 }
 
-func GetCommunityPostIdsInOrder(p *models.ParamCommunityPostList) ([]string, error) {
+func GetCommunityPostIdsInOrder(p *models.ParamPostList) ([]string, error) {
 	orderKey := getRedisKey(KeyPostTimeZSet)
 	if p.Order == models.OrderScore {
 		orderKey = getRedisKey(KeyPostScoreZSet)

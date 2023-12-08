@@ -30,6 +30,9 @@ import (
 // jwt-go: JWT用户认证
 // makefile: 快速构建项目
 // air: 文件热重载
+// swagger: 生成接口文档
+// go-wrk: 压测
+// ratelimit: 令牌桶限流
 func main() {
 	// 加载配置
 	var confFile string

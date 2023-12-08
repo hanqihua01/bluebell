@@ -114,7 +114,7 @@ func GetPostList2(p *models.ParamPostList) (data []*models.ApiPostDetail, err er
 	return
 }
 
-func GetCommunityPostList(p *models.ParamCommunityPostList) (data []*models.ApiPostDetail, err error) {
+func GetCommunityPostList(p *models.ParamPostList) (data []*models.ApiPostDetail, err error) {
 	// redis查询id列表
 	ids, err := redis.GetCommunityPostIdsInOrder(p)
 	if err != nil {
@@ -152,6 +152,19 @@ func GetCommunityPostList(p *models.ParamCommunityPostList) (data []*models.ApiP
 		}
 		postdetail.VoteNum = voteData[idx]
 		data = append(data, postdetail)
+	}
+	return
+}
+
+func GetPostListNew(p *models.ParamPostList) (data []*models.ApiPostDetail, err error) {
+	// 如果传来了communityid，则说明仅查看该community的posts
+	if p.CommunityID == 0 {
+		data, err = GetPostList2(p)
+	} else {
+		data, err = GetCommunityPostList(p)
+	}
+	if err != nil {
+		return nil, err
 	}
 	return
 }
