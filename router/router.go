@@ -3,8 +3,11 @@ package router
 import (
 	"bluebell/controller"
 	"bluebell/util/logger"
+	"bluebell/util/ratelimit"
 	"net/http"
+	"time"
 
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,7 +17,7 @@ func Setup(mode string) *gin.Engine {
 	}
 
 	r := gin.New() // 不使用gin.Default()，因为要使用自定义的logger和recovery中间件
-	r.Use(logger.GinLogger(), logger.GinRecovery(true))
+	r.Use(logger.GinLogger(), logger.GinRecovery(true), ratelimit.RateLimitMiddleware(2*time.Second, 1))
 
 	// 注册业务路由
 	v1 := r.Group("/api/v1")
@@ -40,6 +43,8 @@ func Setup(mode string) *gin.Engine {
 			"msg": "no such route",
 		})
 	})
+
+	pprof.Register(r)
 
 	return r
 }

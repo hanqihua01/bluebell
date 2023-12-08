@@ -12,7 +12,7 @@ func RateLimitMiddleware(fillInterval time.Duration, cap int64) func(c *gin.Cont
 	bucket := ratelimit.NewBucket(fillInterval, cap)
 	return func(c *gin.Context) {
 		// 取不到令牌就返回
-		if bucket.TakeAvailable(1) > 0 {
+		if bucket.TakeAvailable(1) == 0 {
 			c.String(http.StatusOK, "rate limit")
 			c.Abort()
 			return

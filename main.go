@@ -33,6 +33,7 @@ import (
 // swagger: 生成接口文档
 // go-wrk: 压测
 // ratelimit: 令牌桶限流
+// pprof: 性能分析
 func main() {
 	// 加载配置
 	var confFile string
