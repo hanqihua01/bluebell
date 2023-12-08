@@ -21,5 +21,6 @@ services:
     command: sh -c "./wait-for.sh mysql8019:3306 -- ./bubble ./conf/config.ini"
     depends_on:
       - mysql8019
+      - redis507
     ports:
       - "8888:8080"
